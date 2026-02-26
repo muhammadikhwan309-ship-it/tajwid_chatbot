@@ -1,12 +1,12 @@
-import google.generativeai as genai
 import streamlit as st
+from pytgpt.phind import PHIND
 import time
 
 # ============================================
 # KONFIGURASI HALAMAN
 # ============================================
 st.set_page_config(
-    page_title="Chatbot Ilmu Tajwid",
+    page_title="Chatbot Ilmu Tajwid - GRATIS",
     page_icon="🕌",
     layout="centered"
 )
@@ -15,7 +15,7 @@ st.set_page_config(
 # JUDUL DAN DESKRIPSI
 # ============================================
 st.title("🕌 Chatbot Ilmu Tajwid")
-st.markdown("---")
+st.markdown("### GRATIS - TANPA PERLU API KEY!")
 
 st.markdown("""
 Assalamu'alaikum! 👋 Saya adalah chatbot khusus yang akan membantu Anda 
@@ -33,34 +33,36 @@ belajar **Ilmu Tajwid** (hukum bacaan Al-Qur'an).
 st.markdown("---")
 
 # ============================================
-# SIDEBAR (INPUT API KEY)
+# SIDEBAR (INFORMASI)
 # ============================================
 with st.sidebar:
-    st.header("🔑 Pengaturan")
-    
-    # Input API Key
-    api_key = st.text_input(
-        "Masukkan API Key Gemini Anda:",
-        type="password",
-        help="Dapatkan API Key gratis di https://makersuite.google.com/app/apikey"
-    )
-    
-    st.markdown("---")
-    st.markdown("**📌 Cara mendapatkan API Key:**")
+    st.header("📖 Informasi")
     st.markdown("""
-    1. Buka [makersuite.google.com/app/apikey](https://makersuite.google.com/app/apikey)
-    2. Login dengan akun Google
-    3. Klik 'Create API Key'
-    4. Copy dan paste di sini
+    **Chatbot GRATIS** ini menggunakan teknologi AI tanpa perlu API Key.
+    
+    **Cara pakai:**
+    1. Langsung tanya di kolom chat
+    2. Tunggu jawaban
+    3. Selesai!
+    
+    **Provider yang digunakan:** Phind (gratis)
     """)
     
     st.markdown("---")
-    st.markdown("**📖 Tentang Chatbot**")
+    st.markdown("**📌 Tips:**")
     st.markdown("""
-    Chatbot ini dibuat khusus untuk menjawab 
-    pertanyaan seputar Ilmu Tajwid.
+    - Tanyakan dengan jelas
+    - Bisa minta contoh ayat
+    - Chatbot hanya menjawab seputar tajwid
+    """)
     
-    *Versi 1.0*
+    st.markdown("---")
+    st.markdown("**🕌 Tentang Chatbot**")
+    st.markdown("""
+    Chatbot ini dibuat khusus untuk 
+    membantu belajar Ilmu Tajwid.
+    
+    *Versi 2.0 - Tanpa API Key*
     """)
 
 # ============================================
@@ -105,6 +107,25 @@ def cek_topik_tajwid(pertanyaan):
     return False
 
 # ============================================
+# INISIALISASI BOT (CUKUP SEKALI)
+# ============================================
+@st.cache_resource
+def init_bot():
+    """Inisialisasi bot Phind (gratis, tanpa API Key)"""
+    try:
+        return PHIND()
+    except Exception as e:
+        st.error(f"Gagal inisialisasi bot: {e}")
+        return None
+
+# Panggil inisialisasi bot
+bot = init_bot()
+
+if bot is None:
+    st.error("⚠️ Bot gagal diinisialisasi. Coba refresh halaman.")
+    st.stop()
+
+# ============================================
 # INISIALISASI RIWAYAT CHAT
 # ============================================
 if "messages" not in st.session_state:
@@ -119,13 +140,6 @@ for message in st.session_state.messages:
 # INPUT CHAT DARI USER
 # ============================================
 if prompt := st.chat_input("Tanyakan sesuatu tentang tajwid..."):
-    
-    # CEK: API Key sudah diisi?
-    if not api_key:
-        with st.chat_message("assistant"):
-            st.error("⚠️ **API Key belum dimasukkan!**")
-            st.info("Silakan masukkan API Key Gemini Anda di sidebar (sebelah kiri).")
-        st.stop()
     
     # Tampilkan pertanyaan user
     with st.chat_message("user"):
@@ -154,16 +168,13 @@ if prompt := st.chat_input("Tanyakan sesuatu tentang tajwid..."):
         st.stop()
     
     # ========================================
-    # MEMANGGIL API GEMINI
+    # MEMANGGIL BOT TANPA API KEY
     # ========================================
     try:
-        # Konfigurasi API
-        genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-pro')
-        
         # Tampilkan loading
         with st.chat_message("assistant"):
             with st.spinner("🔍 Mencari jawaban..."):
+                
                 # Buat prompt khusus untuk tajwid
                 prompt_tajwid = f"""
 Anda adalah seorang ahli tajwid yang berpengalaman. Jawab pertanyaan berikut dengan:
@@ -176,27 +187,26 @@ Anda adalah seorang ahli tajwid yang berpengalaman. Jawab pertanyaan berikut den
 Pertanyaan: {prompt}
 """
                 
-                # Kirim ke Gemini
-                response = model.generate_content(prompt_tajwid)
+                # Kirim ke bot (TANPA API KEY!)
+                response = bot.chat(prompt_tajwid)
                 
                 # Tampilkan jawaban
-                st.markdown(response.text)
+                st.markdown(response)
                 
                 # Tambahkan footer
-                st.caption("---\n📖 Sumber: Chatbot Tajwid berbasis AI")
+                st.caption("---\n📖 Sumber: Chatbot Tajwid (Gratis - Tanpa API Key)")
         
         # Simpan jawaban
-        st.session_state.messages.append({"role": "assistant", "content": response.text})
+        st.session_state.messages.append({"role": "assistant", "content": response})
     
     except Exception as e:
         with st.chat_message("assistant"):
             st.error(f"❌ Terjadi error: {e}")
             st.info("""
             **Kemungkinan penyebab:**
-            - API Key salah atau tidak valid
-            - Kuota API habis (60 request/menit gratis)
-            - Masalah koneksi
+            - Provider sedang sibuk
+            - Koneksi internet bermasalah
+            - Coba tanya ulang atau refresh halaman
             
-            Coba periksa API Key Anda di sidebar.
-
+            Atau coba tanya dengan pertanyaan yang lebih spesifik.
             """)
