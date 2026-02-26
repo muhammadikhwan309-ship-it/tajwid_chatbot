@@ -159,7 +159,7 @@ if prompt := st.chat_input("Tanyakan sesuatu tentang tajwid..."):
     try:
         # Konfigurasi API
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel('gemini-1.5-pro')
         
         # Tampilkan loading
         with st.chat_message("assistant"):
@@ -198,4 +198,5 @@ Pertanyaan: {prompt}
             - Masalah koneksi
             
             Coba periksa API Key Anda di sidebar.
+
             """)
