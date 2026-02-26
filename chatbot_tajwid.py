@@ -1,5 +1,5 @@
 import streamlit as st
-from pytgpt.phind import PHIND
+from pytgpt.opengpts import OPENGPT
 import time
 
 # ============================================
@@ -119,7 +119,7 @@ def init_bot():
         return None
 
 # Panggil inisialisasi bot
-bot = init_bot()
+bot = OPENGPT()
 
 if bot is None:
     st.error("⚠️ Bot gagal diinisialisasi. Coba refresh halaman.")
@@ -210,3 +210,4 @@ Pertanyaan: {prompt}
             
             Atau coba tanya dengan pertanyaan yang lebih spesifik.
             """)
+
